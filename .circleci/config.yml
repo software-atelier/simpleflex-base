@@ -1,0 +1,14 @@
+version: 2.1
+jobs:
+  build:
+    docker:
+      - image: maven/3.6.2-jdk-8-slim
+    environment:
+    branches:
+      ignore:
+    steps:
+      - setup_remote_docker
+      - checkout
+      - run:
+          name: "Building"
+          command: mvn clean install
