@@ -1,0 +1,36 @@
+{
+    "port": 18000,
+    "file_interface": true,
+    "file_interface_interval" : 1000,
+    "file_interface_path" : "./fileInterface",
+    "local_libs":[],
+    "remote_libs":[],
+    "domains":
+    [
+        {
+            "name":"localhost",
+            "default_app":
+                {
+                    "classpath":"ch.hom3.simpleflex.apps.defaultapp.DefaultApp",
+                    "config":{
+                        "$DOCPATH":"webroot/",
+                        "$BEANSHELL":true
+                    }
+                },
+            "apps":
+            [
+                {
+                    "name":"app",
+                    "classpath":"ch.hom3.simpleflex.apps.defaultapp.DefaultApp",
+                    "config":{
+                        "$DOCPATH":"webroot/",
+                        "$BEANSHELL":true
+                    }
+                }
+            ]
+        }
+    ],
+    "modules":[
+        
+    ]
+}
