@@ -12,3 +12,6 @@ jobs:
       - run:
           name: "Building"
           command: mvn clean install
+      - run:
+          name: "Deploying"
+          command: mvn -s .circleci/settings.xml deploy
