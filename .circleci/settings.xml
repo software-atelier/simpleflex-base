@@ -5,11 +5,6 @@
 
     <servers>
         <server>
-            <id>maven</id>
-            <username>software-atelier</username>
-            <password>${maven_repo_pass}</password>
-        </server>
-        <server>
             <id>maven-snapshot</id>
             <username>software-atelier</username>
             <password>${maven_repo_pass}</password>
