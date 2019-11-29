@@ -144,11 +144,11 @@
                         </goals>
                     </execution>
                 </executions>
-                <!--configuration>
+                <configuration>
                     <serverId>maven</serverId>
                     <nexusUrl>https://oss.sonatype.org/</nexusUrl>
                     <autoReleaseAfterClose>false</autoReleaseAfterClose>
-                </configuration-->
+                </configuration>
             </plugin>
         </plugins>
     </build>
