@@ -27,7 +27,7 @@ public class SimpleFlexBase{
     static Logger LOG = LogManager.getLogger(SimpleFlexBase.class);
     
     /** The Version-String of this Server */
-    public static final String SERVER_VERS = "SimpleFlex base V1.5";
+    public static final String SERVER_VERS = "SimpleFlex base V2.1";
     private final HashMap<String,Domain> _domains;
     /** The GlobalConfiguratin-Object */
     private final GlobalConfig _globalConfig;
