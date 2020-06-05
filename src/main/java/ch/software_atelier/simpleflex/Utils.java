@@ -1,42 +1,52 @@
 package ch.software_atelier.simpleflex;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.List;
-import java.util.StringTokenizer;
-import java.util.TimeZone;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.*;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Locale;
-import java.util.TimeZone;
+import java.util.*;
 
 /**
  * This Class holds some static Utility-methods
  */
 public class Utils {
 
-    public static String getMimeFromFilePath(String path){
-        Path p = new File(path).toPath();
-        try {
-            return java.nio.file.Files.probeContentType(p);
-        } catch (IOException e) {
-            return "application/octet-stream";
+    public static String getMimeFromFilePath(String path) {
+        JSONObject o = new JSONObject(getResource("mime.json"));
+        StringTokenizer t = new StringTokenizer(path, ".");
+        String extension = "default";
+        while (t.hasMoreTokens())
+            extension = t.nextToken();
+        if (o.has(extension)) {
+            return o.getString(extension);
         }
+        return o.getString("default");
+    }
+
+    public static String getResource(String name) {
+
+        StringBuilder result = new StringBuilder();
+        ClassLoader classLoader = Utils.class.getClassLoader();
+        try (Scanner scanner = new Scanner(classLoader.getResourceAsStream(name))) {
+            while (scanner.hasNextLine()) {
+                String line = scanner.nextLine();
+                result.append(line).append("\n");
+            }
+        }
+        return result.toString();
+
+    }
+
+    public static void main(String[] args) {
+        System.out.println(getMimeFromFilePath("file."));
+
     }
 
     /**
      * Reads all bytes of a BuferedInputStream untill a NewLine-Char and returns the readed data as a String. This
      * Method blocks, if no data is aviable and only stops on a newline- or EOF-char!
+     *
      * @param is The InputStream
      * @return The readed Data or null on EOF.
      * @throws java.io.IOException
@@ -64,7 +74,8 @@ public class Utils {
     /**
      * Reads all bytes of a BuferedInputStream untill a NewLine-Char and returns the readed data as a String. This
      * Method blocks, if no data is aviable and only stops on a newline- or EOF-char!
-     * @param is The InputStream
+     *
+     * @param is   The InputStream
      * @param trim trims the String
      * @return The readed Data or null on EOF.
      * @throws java.io.IOException
@@ -109,7 +120,7 @@ public class Utils {
         }
 
         if ((key != null) && (value != null)) {
-            return new String[] { key, value };
+            return new String[]{key, value};
         } else
             return null;
     }
@@ -135,7 +146,7 @@ public class Utils {
 
     public static byte[] readFile(File f) {
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
-                BufferedInputStream is = new BufferedInputStream(new FileInputStream(f));) {
+             BufferedInputStream is = new BufferedInputStream(new FileInputStream(f));) {
 
             byte[] buffer = new byte[512];
             int len = 0;
@@ -147,8 +158,7 @@ public class Utils {
             bos.close();
             return data2return;
 
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return new byte[0];
         }
     }
