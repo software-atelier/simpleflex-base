@@ -28,7 +28,7 @@ public class ErrorDoc extends WebDoc{
 
     @Override
     public String mime() {
-        return Utils.getMime("html");
+        return Utils.getMimeFromFilePath("file.html");
     }
 
     @Override

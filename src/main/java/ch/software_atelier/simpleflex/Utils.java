@@ -6,6 +6,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -24,91 +25,13 @@ import java.util.TimeZone;
  */
 public class Utils {
 
-    /**
-     * Returns a MimeType by the File-extension. Its not case-sensitive. The known File-extensions are: TXT, HTM, HTML,
-     * XML, XSL, RTX, PDF, RTF, MPG, MPEG, MPE, BMP, GIF, JPG, JPEG, JPE, PNG, TIF, TIFF, WML, WBMP, WMLS, CSS
-     *
-     * @param ext
-     * @return
-     */
-    public static String getMime(String ext) {
-        // TEXT
-        if (ext.equalsIgnoreCase("TXT"))
-            return "text/plain";
-        if (ext.equalsIgnoreCase("HTM"))
-            return "text/html";
-        if (ext.equalsIgnoreCase("HTML"))
-            return "text/html";
-        if (ext.equalsIgnoreCase("XML"))
-            return "text/xml";
-        if (ext.equalsIgnoreCase("XSL"))
-            return "text/xsl";
-        if (ext.equalsIgnoreCase("RTX"))
-            return "text/richtext";
-        if (ext.equalsIgnoreCase("CSS"))
-            return "text/css";
-        // APPLICATION
-        if (ext.equalsIgnoreCase("PDF"))
-            return "application/pdf";
-        if (ext.equalsIgnoreCase("RTF"))
-            return "application/rtf";
-        if (ext.equalsIgnoreCase("json"))
-            return "application/json";
-        // VIDEO
-        if (ext.equalsIgnoreCase("MPG"))
-            return "video/mpeg";
-        if (ext.equalsIgnoreCase("MPEG"))
-            return "video/mpeg";
-        if (ext.equalsIgnoreCase("MPE"))
-            return "video/mpeg";
-        // IMAGE
-        if (ext.equalsIgnoreCase("BMP"))
-            return "image/bmp";
-        if (ext.equalsIgnoreCase("GIF"))
-            return "image/gif";
-        if (ext.equalsIgnoreCase("JPG"))
-            return "image/jpg";
-        
-        if (ext.equalsIgnoreCase("JP2"))
-            return "image/jp2";
-        if (ext.equalsIgnoreCase("j2k"))
-            return "image/jp2";
-        if (ext.equalsIgnoreCase("jpg2"))
-            return "image/jp2";
-        
-        if (ext.equalsIgnoreCase("JPEG"))
-            return "image/jpg";
-        if (ext.equalsIgnoreCase("JPE"))
-            return "image/jpg";
-        if (ext.equalsIgnoreCase("PNG"))
-            return "image/png";
-        if (ext.equalsIgnoreCase("TIF"))
-            return "image/tiff";
-        if (ext.equalsIgnoreCase("TIFF"))
-            return "image/tiff";
-        if (ext.equalsIgnoreCase("SVG"))
-            return "image/svg+xml";
-        if (ext.equalsIgnoreCase("PSD"))
-            return "image/psd";
-        
-        // WAP
-        if (ext.equalsIgnoreCase("WML"))
-            return "text/vnd.wap.wml";
-        if (ext.equalsIgnoreCase("WBMP"))
-            return "image/vnd.wap.wbmp";
-        if (ext.equalsIgnoreCase("WMLS"))
-            return "text/vnd.wap.wmlscript";
-        
-        if (ext.equals("ai"))
-            return "application/postscript";
-        if (ext.equals("eps"))
-            return "application/postscript";
-        if (ext.equals("ps"))
-            return "application/postscript";
-        
-        if (ext.equalsIgnoreCase("JNLP"))
-            return "application/x-java-jnlp-file";
-        return "application/octet-stream";
+    public static String getMimeFromFilePath(String path){
+        Path p = new File(path).toPath();
+        try {
+            return java.nio.file.Files.probeContentType(p);
+        } catch (IOException e) {
+            return "application/octet-stream";
+        }
     }
 
     /**

@@ -1,9 +1,3 @@
-/*
- *
- * To change the template for this generated file go to
- * Window - Preferences - Java - Code Generation - Code and Comments
- */
-
 package ch.software_atelier.simpleflex.docs.impl;
 import ch.software_atelier.simpleflex.Request;
 import ch.software_atelier.simpleflex.Utils;
@@ -13,7 +7,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.util.StringTokenizer;
 
 /**
  * Represents a File
@@ -95,13 +88,7 @@ public class FileDoc extends WebDoc{
 
     @Override
     public String mime(){
-            StringTokenizer st = new StringTokenizer(_file.getName(),".");
-            String ext = "";
-            if (st.countTokens()>1){
-                    while (st.hasMoreTokens())
-                            ext = st.nextToken();
-            }
-            return Utils.getMime(ext);
+            return Utils.getMimeFromFilePath(_file.getName());
     }
 
     @Override

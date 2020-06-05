@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package ch.software_atelier.simpleflex.docs.impl;
 
 import ch.software_atelier.simpleflex.Utils;
@@ -24,18 +19,12 @@ public class RessourceDoc extends WebDoc{
 
     public RessourceDoc(String path){
         try{
-            _data = ressource2ByteArray(path);
-            
+            _data = resource2ByteArray(path);
             StringTokenizer st = new StringTokenizer(path, "/");
             while (st.hasMoreTokens()){
                 _name = st.nextToken();
             }
-            String ext = "";
-            st = new StringTokenizer(_name, ".");
-            while (st.hasMoreTokens()){
-                ext = st.nextToken();
-            }
-            _mime = Utils.getMime(ext);
+            _mime = Utils.getMimeFromFilePath(_name);
         }catch(IOException e){
             _data = e.getMessage().getBytes();
             _mime = "text/plain";
@@ -43,7 +32,7 @@ public class RessourceDoc extends WebDoc{
         }
     }
     
-    private byte[] ressource2ByteArray(String path) throws IOException{
+    private byte[] resource2ByteArray(String path) throws IOException{
         ClassLoader classLoader = getClass().getClassLoader();
         ByteArrayOutputStream out;
         try (InputStream in = classLoader.getResourceAsStream(path)) {
@@ -80,7 +69,7 @@ public class RessourceDoc extends WebDoc{
 
     @Override
     public InputStream streamData() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
