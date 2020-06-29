@@ -12,16 +12,25 @@ import java.util.*;
  */
 public class Utils {
 
+    private static HashMap<String,String> customMimeTypes = new HashMap<>();
+
     public static String getMimeFromFilePath(String path) {
-        JSONObject o = new JSONObject(getResource("mime.json"));
         StringTokenizer t = new StringTokenizer(path, ".");
         String extension = "default";
         while (t.hasMoreTokens())
-            extension = t.nextToken();
+            extension = t.nextToken().toLowerCase();
+        if (customMimeTypes.containsKey(extension))
+            return customMimeTypes.get(extension);
+
+        JSONObject o = new JSONObject(getResource("mime.json"));
         if (o.has(extension)) {
             return o.getString(extension);
         }
         return o.getString("default");
+    }
+
+    public static void registerMime(String suffix, String mime){
+        customMimeTypes.put(suffix.toLowerCase(),mime);
     }
 
     public static String getResource(String name) {
@@ -39,8 +48,9 @@ public class Utils {
     }
 
     public static void main(String[] args) {
-        System.out.println(getMimeFromFilePath("file."));
-
+        registerMime("HeLLo","custom/hello");
+        System.out.println(getMimeFromFilePath("file.JPG"));
+        System.out.println(getMimeFromFilePath("file.HELLO"));
     }
 
     /**
