@@ -1,6 +1,14 @@
 # Simpleflex
 Simpleflex is a simple, lightweight Webserver written in java. It supports Websites scripted with Beanshell and integration of servlets in a very easy way.
 
+
+```xml
+        <dependency>
+            <groupId>ch.software-atelier</groupId>
+            <artifactId>simpleflex-base</artifactId>
+            <version>2.1.4</version>
+        </dependency>
+```
 ## Setup as Standalone Server
 
 
