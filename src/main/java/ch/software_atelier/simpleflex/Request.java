@@ -49,6 +49,8 @@ public class Request {
 
     private XmlElement _xml = null;
 
+    private byte[] rawData = new byte[0];
+
     private final ArrayList<RecievedData> _recievedData;
 
     private String _protocoll;
@@ -647,8 +649,8 @@ public class Request {
                 buffersize = (length < 512) ? (int) length : 512;
             }
             bos.flush();
-            byte[] data = bos.toByteArray();
-            return data;
+            rawData = bos.toByteArray();
+            return rawData;
         }
     }
 
@@ -758,6 +760,14 @@ public class Request {
      */
     public boolean isSinglePartReq() {
         return _file != null;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public byte[] getRawData(){
+        return rawData;
     }
 
     /**
