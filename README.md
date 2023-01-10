@@ -6,7 +6,7 @@ Simpleflex is a simple, lightweight Webserver written in java. It supports Websi
         <dependency>
             <groupId>ch.software-atelier</groupId>
             <artifactId>simpleflex-base</artifactId>
-            <version>2.1.4</version>
+            <version>2.2.1</version>
         </dependency>
 ```
 ## Setup as Standalone Server
@@ -45,8 +45,6 @@ WebAppConfig defaultApp = new WebAppConfig(
   "" /*we do not need a name for the default App*/);
 // Now we setup the default app with the document root...
 defaultApp.config.put("$DOCPATH","html_docs/");
-// .. and we enable Beanshell to execute beanshell files (.bsh)
-defaultApp.config.put("$BEANSHELL",true);
 // we set the default app
 localhostDomain.setDefaultWebAppConfig(defaultApp);
 
