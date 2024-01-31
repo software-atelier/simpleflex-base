@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>ch.software-atelier</groupId>
     <artifactId>simpleflex-base</artifactId>
-    <version>2.2.1</version>
+    <version>2.2.2</version>
     <packaging>jar</packaging>
 
     <name>Simpleflex Base</name>
@@ -65,7 +65,7 @@
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
-            <version>20220924</version>
+            <version>20231013</version>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
@@ -129,7 +129,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
-                <version>3.0.1</version>
+                <version>3.1.0</version>
                 <configuration>
                     <skip>false</skip>
                 </configuration>
