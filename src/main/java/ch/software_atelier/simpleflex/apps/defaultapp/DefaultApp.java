@@ -112,11 +112,11 @@ public class DefaultApp implements WebApp{
     }
 
     private String cleanPath(String path){
-        if (_name.length()==0){
+        if (_name.isEmpty()){
             return path;
         }
         else{
-            return path.substring(_name.length()+1,path.length());
+            return path.substring(_name.length()+1);
         }
     }
 

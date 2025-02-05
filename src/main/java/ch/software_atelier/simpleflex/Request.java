@@ -60,13 +60,13 @@ public class Request {
     private String _requestString;
 
     private final HashMap<String, String> _headerContent;
-    private HashMap<String, Integer> _arrayCounter = new HashMap<>();
+    private final HashMap<String, Integer> _arrayCounter = new HashMap<>();
     
     private InetAddress _client;
 
     private boolean _secureConnection;
 
-    private final ArrayList _arguments;
+    private final ArrayList<RequestArgument> _arguments;
 
     private File _file;
 
@@ -115,9 +115,9 @@ public class Request {
      * 
      */
     public Request() {
-        this._recievedData = new ArrayList();
+        this._recievedData = new ArrayList<>();
         this._headerContent = new HashMap<>();
-        this._arguments = new ArrayList();
+        this._arguments = new ArrayList<>();
     }
 
     ///////////////////////////////////
@@ -139,7 +139,7 @@ public class Request {
             return false;
 
         if (line.length() > (key.length() + 1))
-            value = line.substring(key.length() + 1, line.length()).trim();
+            value = line.substring(key.length() + 1).trim();
         else
             return false;
 
@@ -200,7 +200,7 @@ public class Request {
                     val = argValTokenizer.nextToken();
                 if ((key != null) && (val != null))
                     _arguments.add(new RequestArgument(decode(key), decode(val)));
-                else if (argVal.length() > 0)
+                else if (!argVal.isEmpty())
                     _arguments.add(new RequestArgument(decode(argVal), ""));
             }
         }
@@ -213,7 +213,7 @@ public class Request {
      */
     public RequestArgument[] arguments() {
         RequestArgument[] args = new RequestArgument[_arguments.size()];
-        args = (RequestArgument[]) _arguments.toArray(args);
+        args = _arguments.toArray(args);
         return args;
     }
 
@@ -224,7 +224,7 @@ public class Request {
      */
     public String getArgument(String key) {
         for (int i = 0; i < _arguments.size(); i++) {
-            RequestArgument arg = (RequestArgument) _arguments.get(i);
+            RequestArgument arg = _arguments.get(i);
             if (arg.key().equals(key))
                 return arg.value();
         }
@@ -288,7 +288,7 @@ public class Request {
      * @return
      */
     public HashMap<String, String> getHeaders() {
-        HashMap<String, String> headers = new HashMap();
+        HashMap<String, String> headers = new HashMap<>();
         Set<String> keys = _headerContent.keySet();
         for (String key : keys) {
             String value = _headerContent.get(key);
@@ -307,10 +307,7 @@ public class Request {
             return _headerContent.get(key);
         }
         // This is a hack! In some cases, apache converts the headers to lower case...
-        else if (_headerContent.containsKey(key.toLowerCase())) {
-            return _headerContent.get(key.toLowerCase());
-        } else
-            return null;
+        else return _headerContent.getOrDefault(key.toLowerCase(), null);
     }
 
     /**
@@ -402,7 +399,7 @@ public class Request {
      * @throws IOException
      */
     public void apendMultipart(BufferedInputStream bis, long length) throws IOException {
-        LOG.info("Adding multipart... " + length + "bytes");
+        LOG.debug("Adding multipart... " + length + "bytes");
         long l = length;
         long total_l = length;
         
@@ -425,7 +422,7 @@ public class Request {
             fos.flush();
         }
 
-        LOG.info("File saved. " + tmp.length() + "bytes");
+        LOG.debug("File saved. " + tmp.length() + "bytes");
 
         try (FileInputStream fis = new FileInputStream(tmp)) {
 
@@ -439,7 +436,7 @@ public class Request {
             
             byte[] data = unReader.read();
             line = new String(data);
-            LOG.info("First line read: " + data.length + "bytes");
+            LOG.debug("First line read: " + data.length + "bytes");
             
             long counter = 0;
             // While its not the end of The Multipart
@@ -479,42 +476,37 @@ public class Request {
                 }
                 // If no Headercontent is expected...
                 else {
-
                     if (!headerSaved) {
                         recievedData = saveHeaders(headers);
-
                         headerSaved = true;
                     } else {
                         if (recievedData.type() == RecievedData.TYPE_FILE) {
-                            ((RecievedFile) recievedData).apendToFile(data);
+                            ((RecievedFile) recievedData).appendToFile(data);
                         } else if (recievedData.type() == RecievedData.TYPE_TEXT) {
-                            ((RecievedText) recievedData).apendText(line);
+                            ((RecievedText) recievedData).appendText(line);
                         }
                     }
                 }
 
                 data = unReader.read();
-                
                 counter ++;
-
                 l = l - data.length;
-
                 if (counter%100 == 0){
-                    System.out.println((int)(100.0/total_l*l)+"%");
+                    LOG.trace("Read: "+(int)(100.0/total_l*l)+"% "+counter+" lines. "+l+" bytes left.");
                 }
                 line = new String(data);
             }
             _recievedData.add(recievedData);
             recievedData.done();
 
-            LOG.info("Received Data added: " + recievedData.fieldName());
+            LOG.debug("Received Data added: " + recievedData.fieldName());
 
         }
         tmp.delete();
     }
 
     private RecievedData saveHeaders(HashMap<String, String> headers) {
-        String dispositionValue = (String) headers.get(RecievedData._HEADER_CONTENT_DISPOSITION);
+        String dispositionValue = headers.get(RecievedData._HEADER_CONTENT_DISPOSITION);
         StringTokenizer dispPartTokenizer = new StringTokenizer(dispositionValue, ";");
         String fieldName = null;
         String fileName = null;
@@ -542,7 +534,6 @@ public class Request {
         }
         
         
-        System.out.println(fieldName+": "+fileName);
         RecievedData recievedData;
         if (fileName == null) {
             recievedData = new RecievedText();
@@ -561,9 +552,8 @@ public class Request {
      * @throws IOException
      */
     public void apendURLEncoded(BufferedInputStream bfis, long length) throws IOException {
-        StringBuilder sb = new StringBuilder();
-        sb.append(new String(load(bfis, length)));
-        StringTokenizer postTokenizer = new StringTokenizer(sb.toString(), "&");
+        String sb = new String(load(bfis, length));
+        StringTokenizer postTokenizer = new StringTokenizer(sb, "&");
         while (postTokenizer.hasMoreTokens()) {
             String element = postTokenizer.nextToken();
             StringTokenizer elementTokenizer = new StringTokenizer(element, "=");
@@ -576,7 +566,7 @@ public class Request {
             if ((key != null) && (value != null)) {
                 RecievedText recievedText = new RecievedText();
                 recievedText.setFieldName(key);
-                recievedText.apendText(value);
+                recievedText.appendText(value);
                 this.addRecievedData(recievedText);
             }
         }
@@ -598,7 +588,7 @@ public class Request {
             try {
                 this._jsonArr = new JSONArray(content);
             }
-            catch (JSONException je) {
+            catch (JSONException ignored) {
 
             }
         }
@@ -615,7 +605,7 @@ public class Request {
         try {
             _jsonArr = new JSONArray(new String(load(bfis, length), charset));
         }
-        catch (JSONException jsone) {
+        catch (JSONException ignored) {
 
         }
     }
@@ -664,7 +654,7 @@ public class Request {
      */
     public RecievedData[] getRecievedData() {
         RecievedData[] rd = new RecievedData[_recievedData.size()];
-        rd = (RecievedData[]) _recievedData.toArray(rd);
+        rd = _recievedData.toArray(rd);
         return rd;
     }
 
@@ -817,7 +807,7 @@ public class Request {
      * @return
      */
     public String getBoundary() {
-        return extractBoundaryByHeaderValue(this.getHeaderValue(this.HTTPHEADER_CONTENT_TYPE));
+        return extractBoundaryByHeaderValue(this.getHeaderValue(HTTPHEADER_CONTENT_TYPE));
     }
 
     /**
@@ -830,7 +820,7 @@ public class Request {
         while (st.hasMoreTokens()) {
             String token = st.nextToken().trim();
             if (token.startsWith("boundary=")) {
-                return token.substring(9, token.length()).trim();
+                return token.substring(9).trim();
             }
         }
         return null;

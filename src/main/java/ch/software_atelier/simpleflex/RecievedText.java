@@ -16,10 +16,10 @@ public class RecievedText extends RecievedData {
     }
 
     public int type() {
-        return this.TYPE_TEXT;
+        return TYPE_TEXT;
     }
 
-    public void apendText(String text) {
+    public void appendText(String text) {
         _fullText.append(text);
     }
 

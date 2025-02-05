@@ -6,7 +6,7 @@ Simpleflex is a simple, lightweight Webserver written in java. It supports Websi
         <dependency>
             <groupId>ch.software-atelier</groupId>
             <artifactId>simpleflex-base</artifactId>
-            <version>2.2.1</version>
+            <version>2.3.0</version>
         </dependency>
 ```
 ## Setup as Standalone Server

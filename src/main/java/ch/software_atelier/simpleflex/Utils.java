@@ -12,7 +12,7 @@ import java.util.*;
  */
 public class Utils {
 
-    private static HashMap<String,String> customMimeTypes = new HashMap<>();
+    private static final HashMap<String,String> customMimeTypes = new HashMap<>();
 
     public static String getMimeFromFilePath(String path) {
         StringTokenizer t = new StringTokenizer(path, ".");
@@ -37,7 +37,7 @@ public class Utils {
 
         StringBuilder result = new StringBuilder();
         ClassLoader classLoader = Utils.class.getClassLoader();
-        try (Scanner scanner = new Scanner(classLoader.getResourceAsStream(name))) {
+        try (Scanner scanner = new Scanner(Objects.requireNonNull(classLoader.getResourceAsStream(name)))) {
             while (scanner.hasNextLine()) {
                 String line = scanner.nextLine();
                 result.append(line).append("\n");
@@ -45,12 +45,6 @@ public class Utils {
         }
         return result.toString();
 
-    }
-
-    public static void main(String[] args) {
-        registerMime("HeLLo","custom/hello");
-        System.out.println(getMimeFromFilePath("file.JPG"));
-        System.out.println(getMimeFromFilePath("file.HELLO"));
     }
 
     /**
@@ -75,10 +69,9 @@ public class Utils {
         }
         if ((baos.toByteArray().length == 0) && (eof))
             return null;
-        baos.write((int) ('\n'));
-        byte[] bytes = baos.toByteArray();
+        baos.write('\n');
 
-        return bytes;
+        return baos.toByteArray();
     }
 
     /**
@@ -110,12 +103,6 @@ public class Utils {
             line = line.trim();
         }
         return line;
-    }
-
-    private static String getCharter(String charAsHex) {
-        Integer charAsInteger = Integer.valueOf(charAsHex, 16);
-        int charAsInt = charAsInteger.intValue();
-        return (char) charAsInt + "";
     }
 
     public static String[] splitHeader(String header) {

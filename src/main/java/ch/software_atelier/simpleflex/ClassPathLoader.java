@@ -12,7 +12,7 @@ import org.apache.logging.log4j.Logger;
 public class ClassPathLoader {
     static Logger LOG = LogManager.getLogger(ClassPathLoader.class);
 
-    private static final Class[] parameters = new Class[] {URL.class};
+    private static final Class<?>[] parameters = new Class[] {URL.class};
 
     public static void addFile(String s) throws IOException
     {
@@ -28,7 +28,7 @@ public class ClassPathLoader {
     public static void addURL(URL u) throws IOException
     {
         URLClassLoader sysloader = (URLClassLoader) ClassLoader.getSystemClassLoader();
-        Class sysclass = URLClassLoader.class;
+        Class<?> sysclass = URLClassLoader.class;
 
         try {
             Method method = sysclass.getDeclaredMethod("addURL", parameters);

@@ -38,14 +38,14 @@ public class RecievedFile extends RecievedData {
     }
 
     public int type() {
-        return this.TYPE_FILE;
+        return TYPE_FILE;
     }
 
     public File file() {
         return _file;
     }
 
-    public void apendToFile(byte[] data) {
+    public void appendToFile(byte[] data) {
         try {
             _fos.write(data);
         }
@@ -72,11 +72,11 @@ public class RecievedFile extends RecievedData {
             _fos.flush();
             _fos.close();
         }
-        catch (IOException ex) {
+        catch (IOException ignored) {
         }
     }
 
-    protected void finalize() throws Throwable {
+    protected void finalize() {
         if (_file.exists())
             if (!_file.delete())
                 _file.deleteOnExit();

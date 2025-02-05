@@ -4,6 +4,7 @@ import ch.software_atelier.simpleflex.apps.WebApp;
 import ch.software_atelier.simpleflex.docs.impl.ErrorDoc;
 import ch.software_atelier.simpleflex.docs.HeaderField;
 import ch.software_atelier.simpleflex.docs.WebDoc;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
@@ -12,11 +13,9 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.StringTokenizer;
+import java.util.*;
 
+import org.apache.logging.log4j.CloseableThreadContext;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
@@ -39,11 +38,10 @@ public class RequestHandler extends Thread {
     public RequestHandler(WebAppHandler webAppHandler, Socket socket, boolean secure) {
         _webAppHandler = webAppHandler;
         _socket = socket;
-
     }
 
     /**
-     * Switchs the WebApp
+     * Switches the WebApp
      */
     @Override
     public void run() {
@@ -70,18 +68,18 @@ public class RequestHandler extends Thread {
                 return;
 
             }
-            String hostname = request.getHost();
-            LOG.info(LogMarker.requestMarker(hostname), request.getReqestString());
 
-            // Switch now the WebApp
-            switchNow(request);
-            if (request.getRecievedData().length > 0)
-                deleteTempFiles(request);
-
-            flushAndCloseSocket();
-
-        }
-        catch (Throwable th) {
+            try (CloseableThreadContext.Instance ctc = CloseableThreadContext.putAll(request.getHeaders())) {
+                ctc.putAll(request.getHeaders());
+                String hostname = request.getHost();
+                LOG.debug(LogMarker.requestMarker(hostname), request.getMethod()+" "+request.getReqestString());
+                // Switch now the WebApp
+                switchNow(request);
+                if (request.getRecievedData().length > 0)
+                    deleteTempFiles(request);
+                flushAndCloseSocket();
+            }
+        } catch (Throwable th) {
             LOG.error("While reading the Request", th);
         }
     }
@@ -124,22 +122,8 @@ public class RequestHandler extends Thread {
 
     private Request fillRequest(FirstLine fl) throws Throwable {
 
-        // TODO Refactoring
-        // Read Headers first and decide based on the
-        // Content Length, whether the request has Data or not.
-
-        List<String> headers = readHeaders(_is);
-
-        boolean hasContent = false;
-        for (String headerLine : headers) {
-            if (headerLine.startsWith("Content-Length:")) {
-                hasContent = Utils.parseLong(headerLine) > 0;
-                break;
-            }
-        }
-
+        List<String> headers = readHeaders();
         Request request = new Request();
-
         request.setMethod(fl.method);
         request.setRequestString(fl.requestString);
         request.setProtocoll(fl.protocoll);
@@ -149,13 +133,14 @@ public class RequestHandler extends Thread {
             request.addHeaderLine(headerLine);
         }
 
+        String contentLength = request.getHeaderValue(Request.HTTPHEADER_CONTENT_LENGTH);
+        boolean hasContent = contentLength != null && Integer.parseInt(contentLength) > 0;
+
         if (hasContent) {
-            String length = request.getHeaderValue(Request.HTTPHEADER_CONTENT_LENGTH);
             if (checkUpload(request))
-                fillUpPost(request, _is, length);
+                fillUpPost(request, contentLength);
             else {
                 String domainname = request.getHost();
-
                 sendDoc(new ErrorDoc("data segment too large"), domainname);
                 _socket.close();
             }
@@ -164,14 +149,12 @@ public class RequestHandler extends Thread {
         return request;
     }
 
-    private List<String> readHeaders(BufferedInputStream is) throws IOException {
+    private List<String> readHeaders() throws IOException {
         ArrayList<String> headers = new ArrayList<>();
-        String headerline = Utils.readUntilNewLine(is, true);
-
-        while (!headerline.equals("")) {
-            LOG.info(headerline);
+        String headerline = Utils.readUntilNewLine(_is, true);
+        while (headerline != null && !headerline.isEmpty()) {
             headers.add(headerline);
-            headerline = Utils.readUntilNewLine(is, true);
+            headerline = Utils.readUntilNewLine(_is, true);
         }
         return headers;
     }
@@ -187,8 +170,7 @@ public class RequestHandler extends Thread {
         if (postingSizeStr == null)
             return false;
 
-        Long postingSizeLong = new Long(postingSizeStr);
-        long actual = postingSizeLong.longValue();
+        long actual = new Long(postingSizeStr);
         long max = wa.maxPostingSize(plainreq);
 
         if (max == WebApp.UNLIMITED_UPLOAD)
@@ -197,7 +179,7 @@ public class RequestHandler extends Thread {
 
     }
 
-    private void fillUpPost(Request request, BufferedInputStream is, String lengthString) throws IOException {
+    private void fillUpPost(Request request, String lengthString) throws IOException {
         lengthString = lengthString.trim();
         long length = Utils.parseLong(lengthString);
 
@@ -217,25 +199,23 @@ public class RequestHandler extends Thread {
         }
 
         if (contentType.equals(Request.CONTENT_TYPE_APPLICATION)) {
-            request.apendURLEncoded(is, length);
+            request.apendURLEncoded(_is, length);
         } else if (contentType.startsWith(Request.CONTENT_TYPE_MULTIPART)) {
-            request.apendMultipart(is, length);
+            request.apendMultipart(_is, length);
         } else if (contentType.startsWith(Request.CONTENT_TYPE_XML)) {
-            request.apendXML(is, charset, length);
+            request.apendXML(_is, charset, length);
         } else if (contentType.equalsIgnoreCase(Request.CONTENT_TYPE_JSON)) {
-            request.apendJSON(is, charset, length);
+            request.apendJSON(_is, charset, length);
         } else if (contentType.equalsIgnoreCase(Request.CONTENT_TYPE_JSON_PATCH)) {
-            request.apendJSONArray(is, charset, length);
+            request.apendJSONArray(_is, charset, length);
         } else {
-            request.appendSinglePart(is, length);
+            request.appendSinglePart(_is, length);
         }
-
-        // is.close();
-
     }
 
     /**
      * Switchs the WebApp
+     *
      * @param request
      */
     private void switchNow(Request request) {
@@ -247,23 +227,21 @@ public class RequestHandler extends Thread {
             return;
         }
 
-        WebDoc doc = null;
         try {
-            doc = app.process(request);
-            sendDoc(doc, domainname);
-            LOG.info(LogMarker.responseMarker(domainname), request.getReqestString() + " " + doc.size() + "bytes");
-            request.cleanup();
-        }
-        catch (Throwable th) {
-            LOG.error(LogMarker.CONNECTION, "Error in the WebApp " + app.toString(), th);
-            sendDoc(new ErrorDoc("Error in the WebApp " + app.toString() + "\n" + th.toString()), domainname);
+            try (WebDoc doc = app.process(request)) {
+                sendDoc(doc, domainname);
+                LOG.debug(LogMarker.responseMarker(domainname), request.getReqestString() + " " + doc.size() + "bytes");
+                request.cleanup();
+            }
+        } catch (Throwable th) {
+            LOG.error(LogMarker.CONNECTION, "Error in the WebApp " + app, th);
+            sendDoc(new ErrorDoc("Error in the WebApp " + app + "\n" + th), domainname);
         }
     }
 
     private void sendDoc(WebDoc doc, String domainname) {
         try {
             sendHeader(doc);
-
             if (doc.dataType().equals(WebDoc.DATA_BYTE)) {
                 _os.write(doc.byteData());
 
@@ -279,19 +257,17 @@ public class RequestHandler extends Thread {
 
             }
             _os.flush();
-
-            doc.close();
-        }
-        catch (Throwable th) {
+        } catch (Throwable th) {
             LOG.error(LogMarker.CONNECTION, "while sending Data to the Browser", th);
         }
     }
 
     /**
      * Sends the header
+     *
      * @param doc The WebDoc, that must be sent
      */
-    private void sendHeader(WebDoc doc) throws Throwable {
+    private void sendHeader(WebDoc doc) {
 
         _writer.println("HTTP/1.1 " + doc.getHttpCode().code + " " + doc.getHttpCode().message);
         _writer.println("Connection: Close");
@@ -318,7 +294,7 @@ public class RequestHandler extends Thread {
     }
 
     private void sendOptionsHeader() {
-        LOG.info("Sending OPTION Response");
+        LOG.debug("Sending OPTION Response");
         _writer.println("HTTP/1.1 200 OK");
         _writer.println("Connection: Close");
         _writer.println("Server: " + SimpleFlexBase.SERVER_VERS);
@@ -333,7 +309,7 @@ public class RequestHandler extends Thread {
         _writer.flush();
     }
 
-    private class FirstLine {
+    private static class FirstLine {
         public String method = null;
 
         public String requestString = null;

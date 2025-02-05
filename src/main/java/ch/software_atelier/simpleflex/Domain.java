@@ -2,7 +2,6 @@ package ch.software_atelier.simpleflex;
 import ch.software_atelier.simpleflex.apps.WebApp;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
@@ -14,9 +13,7 @@ public class Domain {
 
     public Domain(String name, HashMap<String,WebApp> webApps) {
         _name = name;
-
         _webApps = webApps;
-        
     }
 
     public WebApp getDefaultWebApp(){
@@ -30,7 +27,7 @@ public class Domain {
     public WebApp getWebApp(String name){
         if (name==null)
             return _defaultWebApp;
-        WebApp webApp = (WebApp)_webApps.get(name);
+        WebApp webApp = _webApps.get(name);
         if (webApp == null)
             return _defaultWebApp;
         else
@@ -42,12 +39,10 @@ public class Domain {
     }
 
     public List<WebApp> apps(){
-        ArrayList al = new ArrayList();
-        al.add(this._defaultWebApp);
-        Collection<WebApp> apps = _webApps.values();
-        for (WebApp app:apps)
-            al.add(app);
-        return al;
+        List<WebApp> webapps = new ArrayList<>();
+        webapps.add(this._defaultWebApp);
+        webapps.addAll(_webApps.values());
+        return webapps;
     }
     
 }

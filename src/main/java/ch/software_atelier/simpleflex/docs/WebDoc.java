@@ -1,9 +1,11 @@
 package ch.software_atelier.simpleflex.docs;
 import ch.software_atelier.simpleflex.HTTPCodes;
+
+import java.io.Closeable;
 import java.io.InputStream;
 import java.util.ArrayList;
 
-public abstract class WebDoc {
+public abstract class WebDoc implements Closeable {
 	
     private HTTPCode _httpCode = new HTTPCode(200,HTTPCodes.getMsg(200));
     
@@ -70,12 +72,6 @@ public abstract class WebDoc {
      * @return 
      */
     public abstract String dataType();
-
-    /**
-     * This method is called after the transmission. 
-     * It can be used to cleanup something.
-     */
-    public abstract void close();        
     
     /**
      * Sets the HTTP Response Code. Default is 200 - OK.

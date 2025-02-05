@@ -11,7 +11,7 @@
             "name":"localhost",
             "default_app":
                 {
-                    "classpath":"ch.hom3.simpleflex.apps.defaultapp.DefaultApp",
+                    "classpath":"ch.software_atelier.simpleflex.apps.defaultapp.DefaultApp",
                     "config":{
                         "$DOCPATH":"webroot/",
                         "$BEANSHELL":true
@@ -21,7 +21,7 @@
             [
                 {
                     "name":"app",
-                    "classpath":"ch.hom3.simpleflex.apps.defaultapp.DefaultApp",
+                    "classpath":"ch.software_atelier.simpleflex.apps.defaultapp.DefaultApp",
                     "config":{
                         "$DOCPATH":"webroot/",
                         "$BEANSHELL":true

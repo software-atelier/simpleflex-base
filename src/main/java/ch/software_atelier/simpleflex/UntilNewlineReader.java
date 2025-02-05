@@ -11,8 +11,8 @@ import java.io.OutputStream;
  */
 public class UntilNewlineReader {
 
-    private InputStream _is;
-    private byte[] _buffer;
+    private final InputStream _is;
+    private final byte[] _buffer;
     private int _inBufferStart = -1;
     private int _inBufferSize = -1;
     
@@ -22,14 +22,12 @@ public class UntilNewlineReader {
     }
     
     public byte[] read()throws IOException{
-        byte[] result = null;
         try(ByteArrayOutputStream os = new ByteArrayOutputStream();){
             
             if (_inBufferStart>=0 && _inBufferSize >= 0){
                 if( writeUntilNewline(os, _inBufferStart, _inBufferSize) ){
                     // found a newline in buffer
-                    result = os.toByteArray();
-                    return result;
+                    return os.toByteArray();
                 }
                 else{
                     _inBufferStart = -1;
@@ -42,14 +40,12 @@ public class UntilNewlineReader {
             while ( (length=_is.read(_buffer))!=-1){
                 if( writeUntilNewline(os, 0, length) ){
                     // found a newline in buffer
-                    result = os.toByteArray();
-                    return result;
+                    return os.toByteArray();
                 }
             }
             
-            result = os.toByteArray();
+            return os.toByteArray();
         }
-        return result;
     }
     
     private boolean writeUntilNewline(OutputStream os, int from, int size) throws IOException{
