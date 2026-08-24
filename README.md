@@ -37,7 +37,7 @@ Add Simpleflex Base to the application that contains your `WebApp`:
 <dependency>
     <groupId>ch.software-atelier</groupId>
     <artifactId>simpleflex-base</artifactId>
-    <version>2.3.0</version>
+    <version>2.3.1</version>
 </dependency>
 ```
 
