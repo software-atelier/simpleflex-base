@@ -81,6 +81,12 @@ public class RequestHandler extends Thread {
             }
         } catch (Throwable th) {
             LOG.error("While reading the Request", th);
+            sendBadRequest();
+            try {
+                flushAndCloseSocket();
+            } catch (IOException closeException) {
+                LOG.debug("Unable to close malformed request connection", closeException);
+            }
         }
     }
 
@@ -291,6 +297,12 @@ public class RequestHandler extends Thread {
         _writer.println("HTTP/1.1 501 Not Implemented");
         _writer.println();
         _writer.flush();
+    }
+
+    private void sendBadRequest() {
+        if (_writer != null && !_socket.isClosed()) {
+            sendDoc(new ErrorDoc("Bad Request"), null);
+        }
     }
 
     private void sendOptionsHeader() {

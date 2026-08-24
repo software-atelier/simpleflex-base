@@ -11,8 +11,11 @@ import ch.software_atelier.simpleflex.conf.GlobalConfig;
 import ch.software_atelier.simpleflex.docs.WebDoc;
 import ch.software_atelier.simpleflex.docs.impl.StringDoc;
 import java.io.File;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
+import java.net.Socket;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -68,7 +71,7 @@ class HttpServerIntegrationTest {
     }
 
     @Test
-    void returnsRedirectDocumentAndErrorDocumentForMissingPaths() throws Exception {
+    void returnsRedirectDocumentAndNotFoundDocumentForMissingPaths() throws Exception {
         File folder = new File(documentRoot, "folder");
         assertTrue(folder.mkdir());
         Files.write(new File(folder, "index.html").toPath(), "folder index".getBytes(StandardCharsets.UTF_8));
@@ -79,8 +82,17 @@ class HttpServerIntegrationTest {
 
         assertEquals(200, redirect.statusCode());
         assertEquals("<meta http-equiv=\"refresh\" content=\"0; URL=/folder/\">", redirect.body());
-        assertEquals(400, missing.statusCode());
+        assertEquals(404, missing.statusCode());
         assertTrue(missing.body().contains("404 - File not found"));
+    }
+
+    @Test
+    void returnsBadRequestForMalformedRequestParsing() throws Exception {
+        start(defaultApp());
+
+        String response = sendRaw("GET / HTTP/1.1\r\nHost: localhost\r\nContent-Length: invalid\r\n\r\n");
+
+        assertTrue(response.startsWith("HTTP/1.1 400 Bad Request"));
     }
 
     @Test
@@ -145,6 +157,19 @@ class HttpServerIntegrationTest {
                 .version(HttpClient.Version.HTTP_1_1)
                 .connectTimeout(REQUEST_TIMEOUT)
                 .build();
+    }
+
+    private String sendRaw(String request) throws Exception {
+        try (Socket socket = new Socket(InetAddress.getLoopbackAddress(), baseUri.getPort())) {
+            socket.setSoTimeout((int) REQUEST_TIMEOUT.toMillis());
+            OutputStream output = socket.getOutputStream();
+            output.write(request.getBytes(StandardCharsets.US_ASCII));
+            output.flush();
+            InputStream input = socket.getInputStream();
+            byte[] buffer = new byte[1024];
+            int length = input.read(buffer);
+            return new String(buffer, 0, length, StandardCharsets.US_ASCII);
+        }
     }
 
     private static final class EphemeralConnectionHandler extends ConnectionHandler {

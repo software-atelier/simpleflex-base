@@ -99,7 +99,7 @@ public class DefaultApp implements WebApp{
     }
     
     private WebDoc fileNotFound(String req){
-        return new ErrorDoc("404 - File not found");
+        return new ErrorDoc("404 - File not found", 404, "Not Found");
     }
     
     
