@@ -1,13 +1,13 @@
 # Simpleflex Base
 
-Simpleflex Base is a small Java 8 HTTP server framework for applications that
+Simpleflex Base is a small Java 17 HTTP server framework for applications that
 want a direct, dependency-light route from a socket request to Java code. It
 maps a host and the first URL path component to a `WebApp`, parses common
 request bodies, and lets the application return a `WebDoc` response. The
 project can run as a standalone server from a configuration file or be started
 from another Java application.
 
-Current version: **2.3.0**. The project is built with Maven and targets Java 8.
+Version in this branch: **2.3.2** (not yet published). Latest Maven Central release: **2.3.1**. The project is built with Maven and targets Java 17.
 
 ## Features
 
@@ -26,18 +26,18 @@ Current version: **2.3.0**. The project is built with Maven and targets Java 8.
 
 ## Requirements
 
-- Java 8 or newer (the source and target bytecode level are Java 8)
-- Maven 3.6.3 or newer to build this repository
+- Java 17 or newer (the bytecode target is Java 17)
+- Maven 3.9 or newer to build this repository
 
 ## Quick start: embed a WebApp
 
-Add Simpleflex Base to the application that contains your `WebApp`:
+After `2.3.2` is published on Maven Central, add Simpleflex Base to the application that contains your `WebApp` as follows. Until then, use the published version `2.3.1`.
 
 ```xml
 <dependency>
     <groupId>ch.software-atelier</groupId>
     <artifactId>simpleflex-base</artifactId>
-    <version>2.3.1</version>
+    <version>2.3.2</version>
 </dependency>
 ```
 
@@ -448,10 +448,10 @@ levels.
 Simpleflex Base is the transport and `WebApp` layer for two companion
 repositories:
 
-- **simpleflex-rest** (`ch.software-atelier:simpleflex-rest:2.3.0`) builds
+- **simpleflex-rest** (`ch.software-atelier:simpleflex-rest:2.3.2`) builds
   REST APIs on top of Simpleflex with `RestApp`, resources, request/response
   helpers, and Swagger documentation classes.
-- **simpleflex-rest-auth** (`ch.software-atelier:simpleflex-auth:2.4.3`)
+- **simpleflex-rest-auth** (`ch.software-atelier:simpleflex-auth:2.4.5`)
   builds on `simpleflex-rest` and provides authentication-oriented REST
   resources, token handling, access control lists, and MongoDB data handling.
 
@@ -486,10 +486,7 @@ To run the standalone launcher from a built distribution, ensure that
 `config.json` or `simpleflex.conf` is in the current working directory; the
 manifest main class is `ch.software_atelier.simpleflex.SimpleFlexBase`.
 
-`deployToNexus.sh` is the release helper. It sets `GPG_TTY` and the required
-`MAVEN_OPTS` for its environment, then runs `mvn clean install deploy`. It is
-intended for maintainers with Sonatype and signing credentials; ordinary local
-development should use `mvn test` or `mvn package`.
+Release maintainers use the GitHub Release workflow described in [Release procedure](docs/RELEASING.md). Ordinary local development should use `mvn test` or `mvn package`.
 
 ## License
 
