@@ -32,7 +32,7 @@ public class SimpleFlexBase {
     /**
      * The Version-String of this Server
      */
-    public static final String SERVER_VERS = "SimpleFlex base V2.3.0";
+    public static final String SERVER_VERS = "SimpleFlex base V2.3.2";
     private final HashMap<String, Domain> _domains;
     /**
      * The GlobalConfiguratin-Object
