@@ -7,7 +7,7 @@ request bodies, and lets the application return a `WebDoc` response. The
 project can run as a standalone server from a configuration file or be started
 from another Java application.
 
-Version in this branch: **2.3.2** (not yet published). Latest Maven Central release: **2.3.1**. The project is built with Maven and targets Java 17.
+Latest Maven Central release: [2.3.2](https://central.sonatype.com/artifact/ch.software-atelier/simpleflex-base/2.3.2). The project is built with Maven and targets Java 17.
 
 ## Features
 
@@ -31,7 +31,7 @@ Version in this branch: **2.3.2** (not yet published). Latest Maven Central rele
 
 ## Quick start: embed a WebApp
 
-After `2.3.2` is published on Maven Central, add Simpleflex Base to the application that contains your `WebApp` as follows. Until then, use the published version `2.3.1`.
+Add Simpleflex Base from Maven Central to the application that contains your `WebApp`:
 
 ```xml
 <dependency>
